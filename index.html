@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ammonia Plant — P&ID Search</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── THEME VARIABLES ── */
+    [data-theme="dark"] {
+      --bg-overlay: linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(10,10,10,0.88) 100%);
+      --card-bg: rgba(10,10,10,0.78);
+      --card-border: rgba(249,115,22,0.25);
+      --text-primary: #fff;
+      --text-secondary: rgba(255,255,255,0.45);
+      --text-muted: rgba(255,255,255,0.3);
+      --chip-bg: rgba(0,0,0,0.85);
+      --chip-color: rgba(255,255,255,0.45);
+      --input-bg: rgba(255,255,255,0.04);
+      --divider: rgba(255,255,255,0.06);
+      --meta-value: rgba(255,255,255,0.8);
+      --off-btn: rgba(255,255,255,0.08);
+      --off-text: rgba(255,255,255,0.2);
+      --footer-color: rgba(255,255,255,0.18);
+      --stats-color: rgba(255,255,255,0.35);
+      --empty-color: rgba(255,255,255,0.3);
+      --toast-bg: #1a1a1a;
+      --search-title-color: #ffffff;
+    }
+
+    [data-theme="light"] {
+      --bg-overlay: linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, rgba(240,240,240,0.88) 100%);
+      --card-bg: rgba(255,255,255,0.92);
+      --card-border: rgba(249,115,22,0.35);
+      --text-primary: #1a1a1a;
+      --text-secondary: rgba(0,0,0,0.6);
+      --text-muted: rgba(0,0,0,0.5);
+      --chip-bg: rgba(255,255,255,0.9);
+      --chip-color: rgba(0,0,0,0.6);
+      --input-bg: rgba(255,255,255,0.8);
+      --divider: rgba(0,0,0,0.08);
+      --meta-value: rgba(0,0,0,0.8);
+      --off-btn: rgba(0,0,0,0.08);
+      --off-text: rgba(0,0,0,0.3);
+      --footer-color: rgba(0,0,0,0.3);
+      --stats-color: rgba(0,0,0,0.5);
+      --empty-color: rgba(0,0,0,0.4);
+      --toast-bg: #333;
+      --search-title-color: #000000;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      background:
+        var(--bg-overlay),
+        url('bg_petrokimia.jpg') center/cover no-repeat fixed;
+      color: var(--text-primary);
+      transition: all 0.3s;
+    }
+
+    .app {
+      max-width: 750px;
+      margin: 0 auto;
+      padding: 2rem 1rem 3rem;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+    .topbar-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #f97316;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .topbar-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: auto;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ── DARK/LIGHT TOGGLE ── */
+    .theme-toggle {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 99px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover { border-color: #f97316; }
+
+    /* ── HEADER ── */
+    .header { text-align: center; margin-bottom: 2rem; }
+    .header h1 { font-size: 26px; font-weight: 700; color: var(--search-title-color);
+     text-shadow: 0 0 12px rgba(255,255,255,0.6);line-height: 1.2; }
+    .header h1 span { color: #f97316; text-shadow: 0 0 12px rgba(249,115,22,0.7);}
+    .header p { font-size: 13px; color: var(--text-secondary); margin-top: 8px; }
+
+    /* ── SEARCH BOX ── */
+    .search-box {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 1rem;
+      background: var(--input-bg);
+      border: 1px solid rgba(249,115,22,0.3);
+      border-radius: 10px;
+      padding: 6px 6px 6px 14px;
+      align-items: center;
+    }
+    .search-box:focus-within { border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.15); }
+    .search-box input {
+      flex: 1; background: transparent; border: none; outline: none;
+      font-size: 14px; color: var(--text-primary);
+    }
+    .search-box input::placeholder { color: rgba(255,255,255,0.6); }
+    .search-box button {
+      background: #f97316; border: none; color: #000;
+      font-size: 13px; font-weight: 700; padding: 8px 20px;
+      border-radius: 7px; cursor: pointer; letter-spacing: 0.5px;
+      transition: background 0.15s;
+    }
+    .search-box button:hover { background: #fb923c; }
+
+    /* ── FILTER CHIPS ── */
+    .filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .chip {
+      padding: 5px 13px; border-radius: 99px; font-size: 12px; cursor: pointer;
+      border: 1px solid rgba(128,128,128,0.3); color: var(--chip-color);
+      background: var(--chip-bg); letter-spacing: 0.3px; transition: all 0.15s; font-weight: 700;
+    }
+    .chip:hover { border-color: rgba(249,115,22,0.5); color: #fb923c; }
+    .chip.active { border-color: #f97316; color: #f97316; background: rgba(249,115,22,0.1); }
+
+    /* ── TOOLBAR (stats only) ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .stats-bar { font-size: 12px; color: var(--stats-color); letter-spacing: 0.3px; }
+    .stats-bar strong { color: #f97316; }
+
+    /* ── RESULT CARD ── */
+    .result-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px; padding: 1.1rem 1.25rem;
+      margin-bottom: 10px; position: relative; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .result-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, #f97316, transparent);
+    }
+    .result-card:hover { border-color: rgba(249,115,22,0.6); box-shadow: 0 0 20px rgba(249,115,22,0.12); }
+
+    .card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+
+    .tag-badge {
+      font-family: monospace; font-size: 12px; font-weight: 700;
+      background: rgba(249,115,22,0.15); color: #f97316;
+      border: 1px solid rgba(249,115,22,0.4);
+      padding: 3px 10px; border-radius: 5px; letter-spacing: 0.5px;
+      white-space: nowrap; cursor: pointer; transition: all 0.15s;
+      position: relative;
+    }
+    .tag-badge:hover { background: rgba(249,115,22,0.3); }
+    .tag-badge::after {
+      content: '📋'; font-size: 10px; margin-left: 4px; opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .tag-badge:hover::after { opacity: 1; }
+
+    .service-desc { font-size: 14px; font-weight: 500; color: var(--text-primary); line-height: 1.4; flex: 1; }
+
+    .meta-grid { display: flex; gap: 2rem; margin-bottom: 10px; flex-wrap: wrap; }
+    .meta-item { display: flex; flex-direction: column; gap: 2px; }
+    .meta-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .meta-value { font-size: 13px; color: var(--meta-value); font-family: monospace; }
+
+    .divider { height: 1px; background: var(--divider); margin-bottom: 10px; }
+
+    /* ── LINK BUTTONS ── */
+    .links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .lbtn {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; padding: 6px 12px; border-radius: 6px;
+      text-decoration: none; cursor: pointer; font-weight: 500;
+      transition: all 0.15s; letter-spacing: 0.3px;
+    }
+    .lbtn-pid { border: 1px solid rgba(249,115,22,0.5); color: #f97316; background: rgba(249,115,22,0.08); }
+    .lbtn-pid:hover { background: rgba(249,115,22,0.2); box-shadow: 0 0 10px rgba(249,115,22,0.2); }
+    .lbtn-ilock { border: 1px solid rgba(34,197,94,0.4); color: #22c55e; background: rgba(34,197,94,0.06); }
+    .lbtn-ilock:hover { background: rgba(34,197,94,0.18); box-shadow: 0 0 10px rgba(34,197,94,0.15); }
+    .lbtn-hmi { border: 1px solid rgba(168,85,247,0.4); color: #a855f7; background: rgba(168,85,247,0.06); }
+    .lbtn-hmi:hover { background: rgba(168,85,247,0.18); box-shadow: 0 0 10px rgba(168,85,247,0.15); }
+    .lbtn-off {
+      border: 1px solid var(--off-btn); color: var(--off-text);
+      background: transparent; cursor: default; pointer-events: none;
+    }
+    .lbtn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ── EMPTY & LOADING ── */
+    .empty { text-align: center; padding: 3rem 1rem; color: var(--empty-color); font-size: 13px; }
+    .loading { text-align: center; padding: 2rem; color: var(--empty-color); font-size: 13px; }
+
+    /* ── FOOTER ── */
+    .footer { margin-top: 2.5rem; text-align: center; font-size: 11px; color: var(--footer-color); letter-spacing: 1.5px; text-transform: uppercase; }
+
+    /* ── STATUS INDICATOR ── */
+    .status-dot {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text-muted);
+    }
+    .status-dot .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #444; transition: background 0.3s;
+    }
+    .status-dot.online .dot  { background: #22c55e; box-shadow: 0 0 6px #22c55e88; animation: pulse-green 2s infinite; }
+    .status-dot.offline .dot { background: #ef4444; box-shadow: 0 0 6px #ef444488; }
+    @keyframes pulse-green {
+      0%,100% { opacity: 1; } 50% { opacity: 0.5; }
+    }
+
+    /* ── SEARCH HISTORY ── */
+    .search-wrap { position: relative; margin-bottom: 1rem; }
+    .search-wrap .search-box { margin-bottom: 0; }
+    .history-dropdown {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 8px; overflow: hidden; z-index: 100;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      display: none;
+    }
+    .history-dropdown.show { display: block; }
+    .history-header {
+      font-size: 10px; color: var(--text-muted); letter-spacing: 1px;
+      text-transform: uppercase; padding: 8px 12px 4px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .history-clear {
+      font-size: 10px; color: #f97316; cursor: pointer;
+      background: none; border: none; padding: 0; letter-spacing: 0.5px;
+    }
+    .history-clear:hover { text-decoration: underline; }
+    .history-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px; cursor: pointer; font-size: 13px;
+      color: var(--text-primary); transition: background 0.1s;
+    }
+    .history-item:hover { background: rgba(249,115,22,0.08); }
+    .history-item svg { opacity: 0.4; flex-shrink: 0; }
+
+    /* ── BADGE CHIP ── */
+    .chip-badge {
+      display: inline-block; font-size: 10px; font-weight: 700;
+      background: rgba(128,128,128,0.15); color: var(--text-muted);
+      border-radius: 99px; padding: 1px 6px; margin-left: 4px;
+      min-width: 18px; text-align: center;
+    }
+    .chip.active .chip-badge { background: rgba(249,115,22,0.2); color: #f97316; }
+
+    /* ── HIGHLIGHT KEYWORD ── */
+    .highlight { background: rgba(249,115,22,0.25); color: #f97316; border-radius: 2px; padding: 0 2px; }
+
+    /* ── TOAST NOTIFICATION ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      background: var(--toast-bg); color: #f97316;
+      border: 1px solid rgba(249,115,22,0.4);
+      padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 999;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <img src="logo.png" alt="Logo Petrokimia Gresik" style="height:40px;width:auto;object-fit:contain;">
+    <div class="topbar-title">PT Petrokimia Gresik — Ammonia Plant</div>
+    <div class="topbar-sub">
+      <div class="status-dot" id="statusDot"><div class="dot"></div><span id="statusText">Connecting...</span></div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Smart <span>Troubleshooting</span><br>Equipment Search</h1>
+    <p>Cari tag number, P&ID, HMI, dan Logic Diagram secara cepat</p>
+  </div>
+
+  <!-- SEARCH BOX -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" style="flex-shrink:0">
+        <circle cx="6.5" cy="6.5" r="4.5"/><path d="M10 10l3 3"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Ketik tag number: ZC 1016, AE 1001, PSV-101 ..." autocomplete="off"/>
+      <button onclick="doSearch()">CARI</button>
+    </div>
+    <div class="history-dropdown" id="historyDropdown">
+      <div class="history-header">
+        <span>Pencarian Terakhir</span>
+        <button class="history-clear" onclick="clearHistory()">Hapus Semua</button>
+      </div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- FILTER CHIPS ROW 1: Tipe Instrumen -->
+  <div class="filter-row" id="filterRow1">
+    <div class="chip active" data-filter="semua"   onclick="setFilter('semua', this)">Semua</div>
+    <div class="chip"        data-filter="AE,AT,AI,AIC" onclick="setFilter('AE,AT,AI,AIC', this)">Analyzer</div>
+    <div class="chip"        data-filter="PI,PIC,PT,PSV,PSH,PSL,PSHH,PSLL,PAH,PAL,PY,PV" onclick="setFilter('PI,PIC,PT,PSV,PSH,PSL,PSHH,PSLL,PAH,PAL,PY,PV', this)">Pressure</div>
+    <div class="chip"        data-filter="TI,TIC,TE,TT,TY,TV,TW" onclick="setFilter('TI,TIC,TE,TT,TY,TV,TW', this)">Temperature</div>
+    <div class="chip"        data-filter="FI,FIC,FE,FT,FY,FV" onclick="setFilter('FI,FIC,FE,FT,FY,FV', this)">Flow</div>
+    <div class="chip"        data-filter="LI,LIC,LE,LT,LY,LV" onclick="setFilter('LI,LIC,LE,LT,LY,LV', this)">Level</div>
+    <div class="chip"        data-filter="ZC,HS,HC,ZI" onclick="setFilter('ZC,HS,HC,ZI', this)">Control</div>
+  </div>
+
+  <!-- FILTER CHIPS ROW 2: Kelengkapan Dokumen -->
+  <div class="filter-row" id="filterRow2" style="margin-bottom:1.5rem;">
+    <div class="chip active" id="cAll"  onclick="setComplete('all',  this)">Semua</div>
+    <div class="chip"        id="cFull" onclick="setComplete('full', this)">Lengkap 3/3</div>
+    <div class="chip"        id="cPid"  onclick="setComplete('pid',  this)">Ada P&ID</div>
+    <div class="chip"        id="cHmi"  onclick="setComplete('hmi',  this)">Ada HMI</div>
+    <div class="chip"        id="cLd"   onclick="setComplete('ld',   this)">Ada Logic</div>
+  </div>
+
+  <!-- TOOLBAR (stats only) -->
+  <div class="toolbar" id="toolbar" style="display:none;">
+    <div class="stats-bar" id="statsBar"></div>
+  </div>
+
+  <div id="results"><div class="loading">Menghubungkan ke server...</div></div>
+  <div class="footer">Ammonia Plant — P&ID Information System v1.0</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_URL = 'http://localhost:8000';
+  let allData = [];
+  let activeFilter = 'semua';
+  let activeComplete = 'all';
+  let currentData = [];
+  let lastQuery = '';
+
+  // ── THEME ──
+  // Sinkronkan label tombol dengan state tema saat ini
+  function syncThemeBtn() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    document.getElementById('themeBtn').textContent = isDark ? '🌙 Dark' : '☀️ Light';
+  }
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    syncThemeBtn();
+  }
+
+  // Panggil sekali saat halaman load agar label sesuai tema awal
+  syncThemeBtn();
+
+  // ── TOAST ──
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // ── COPY TAG ──
+  function copyTag(tag) {
+    navigator.clipboard.writeText(tag).then(() => {
+      showToast(`✅ Tag "${tag}" berhasil dicopy!`);
+    }).catch(() => {
+      showToast(`Tag: ${tag}`);
+    });
+  }
+
+  // ── STATUS INDICATOR ──
+  function setStatus(online) {
+    const dot  = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    dot.className  = 'status-dot ' + (online ? 'online' : 'offline');
+    text.textContent = online ? 'Server Online' : 'Server Offline';
+  }
+
+  async function pingServer() {
+    try {
+      const res = await fetch(`${API_URL}/equipment`, { signal: AbortSignal.timeout(3000) });
+      setStatus(res.ok || res.status < 500);
+    } catch {
+      setStatus(false);
+    }
+  }
+
+  // ── SEARCH HISTORY ──
+  const HISTORY_KEY = 'pid_search_history';
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch { return []; }
+  }
+  function saveHistory(q) {
+    if (!q) return;
+    let h = getHistory().filter(x => x !== q);
+    h.unshift(q);
+    h = h.slice(0, 5);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
+  }
+  function clearHistory() {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+    document.getElementById('historyDropdown').classList.remove('show');
+  }
+  function renderHistory() {
+    const h    = getHistory();
+    const list = document.getElementById('historyList');
+    const dd   = document.getElementById('historyDropdown');
+    if (h.length === 0) { dd.classList.remove('show'); return; }
+    list.innerHTML = h.map(q => `
+      <div class="history-item" onclick="pickHistory('${q.replace(/'/g,"\\'")}')">
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+        </svg>
+        ${q}
+      </div>`).join('');
+  }
+  function pickHistory(q) {
+    document.getElementById('searchInput').value = q;
+    document.getElementById('historyDropdown').classList.remove('show');
+    doSearch();
+  }
+
+  // ── HIGHLIGHT ──
+  function highlight(text, query) {
+    if (!query || !text) return text || '-';
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<span class="highlight">$1</span>');
+  }
+
+  // ── BADGE COUNT per filter ──
+  function countForFilter(filterStr) {
+    if (filterStr === 'semua') return allData.length;
+    const prefixes = filterStr.split(',');
+    return allData.filter(r => {
+      const tag = r.tag_number.replace(/[\s\-]/g, '').toUpperCase();
+      return prefixes.some(p => tag.startsWith(p));
+    }).length;
+  }
+
+  function updateBadges() {
+    document.querySelectorAll('#filterRow1 .chip').forEach(chip => {
+      const f = chip.dataset.filter;
+      if (!f) return;
+      const count = countForFilter(f);
+      const old = chip.querySelector('.chip-badge');
+      if (old) old.remove();
+      const badge = document.createElement('span');
+      badge.className = 'chip-badge';
+      badge.textContent = count;
+      chip.appendChild(badge);
+    });
+  }
+
+  // ── LOAD DATA ──
+  async function loadAll() {
+    try {
+      const res  = await fetch(`${API_URL}/equipment`);
+      const data = await res.json();
+      allData = data;
+      setStatus(true);
+      updateBadges();
+      renderResults(allData);
+    } catch (err) {
+      setStatus(false);
+      document.getElementById('results').innerHTML =
+        `<div class="empty">Tidak dapat terhubung ke server.<br>Pastikan backend sudah berjalan di port 8000.</div>`;
+    }
+  }
+
+  // ── SEARCH ──
+  async function doSearch() {
+    const q = document.getElementById('searchInput').value.trim();
+    document.getElementById('historyDropdown').classList.remove('show');
+    if (!q) { lastQuery = ''; applyFilter(allData); return; }
+    lastQuery = q;
+    saveHistory(q);
+    try {
+      const res  = await fetch(`${API_URL}/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      applyFilter(data);
+    } catch {
+      const qUp = q.replace(/[\s\-]/g, '').toUpperCase();
+      const filtered = allData.filter(r =>
+        r.tag_number.replace(/[\s\-]/g, '').toUpperCase().includes(qUp) ||
+        (r.service_description || '').toUpperCase().includes(q.toUpperCase())
+      );
+      applyFilter(filtered);
+    }
+  }
+
+  // ── FILTER TIPE (Row 1) — mutual exclusive ──
+  function setFilter(f, el) {
+    activeFilter = f;
+    // Hapus active dari semua chip row 1, set hanya yang diklik
+    document.querySelectorAll('#filterRow1 .chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    const q = document.getElementById('searchInput').value.trim();
+    if (q) { doSearch(); } else { applyFilter(allData); }
+  }
+
+  // ── FILTER KELENGKAPAN (Row 2) — mutual exclusive ──
+  function setComplete(f, el) {
+    activeComplete = f;
+    document.querySelectorAll('#filterRow2 .chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    const q = document.getElementById('searchInput').value.trim();
+    if (q) { doSearch(); } else { applyFilter(allData); }
+  }
+
+  function applyFilter(data) {
+    let filtered = data;
+    if (activeFilter !== 'semua') {
+      const prefixes = activeFilter.split(',');
+      filtered = filtered.filter(r => {
+        const tag = r.tag_number.replace(/[\s\-]/g, '').toUpperCase();
+        return prefixes.some(p => tag.startsWith(p));
+      });
+    }
+    if (activeComplete === 'full') {
+      filtered = filtered.filter(r =>
+        r.pid_link      && r.pid_link      !== '-' &&
+        r.hmi_link      && r.hmi_link      !== '-' &&
+        r.Logic_Diagram && r.Logic_Diagram !== '-'
+      );
+    } else if (activeComplete === 'pid') {
+      filtered = filtered.filter(r => r.pid_link && r.pid_link !== '-');
+    } else if (activeComplete === 'hmi') {
+      filtered = filtered.filter(r => r.hmi_link && r.hmi_link !== '-');
+    } else if (activeComplete === 'ld') {
+      filtered = filtered.filter(r => r.Logic_Diagram && r.Logic_Diagram !== '-');
+    }
+    renderResults(filtered);
+  }
+
+  // ── RENDER ──
+  function renderResults(data) {
+    currentData = data;
+    const toolbar   = document.getElementById('toolbar');
+    const statsBar  = document.getElementById('statsBar');
+    const container = document.getElementById('results');
+
+    if (!data || data.length === 0) {
+      toolbar.style.display = 'none';
+      container.innerHTML = `<div class="empty">Tidak ada equipment ditemukan.</div>`;
+      return;
+    }
+
+    toolbar.style.display = 'flex';
+    statsBar.innerHTML = `Menampilkan <strong>${data.length}</strong> equipment`;
+
+    container.innerHTML = data.map(eq => {
+      const hasPid = eq.pid_link      && eq.pid_link      !== '-' && eq.pid_link      !== '';
+      const hasHmi = eq.hmi_link      && eq.hmi_link      !== '-' && eq.hmi_link      !== '';
+      const hasLd  = eq.Logic_Diagram && eq.Logic_Diagram !== '-' && eq.Logic_Diagram !== '';
+      const total  = [hasPid, hasHmi, hasLd].filter(Boolean).length;
+
+      const dotHtml = `
+        <span title="P&ID"  style="width:9px;height:9px;border-radius:50%;background:${hasPid ? '#f97316' : '#444'};display:inline-block;margin-right:4px;"></span>
+        <span title="HMI"   style="width:9px;height:9px;border-radius:50%;background:${hasHmi ? '#22c55e' : '#444'};display:inline-block;margin-right:4px;"></span>
+        <span title="Logic" style="width:9px;height:9px;border-radius:50%;background:${hasLd  ? '#a855f7' : '#444'};display:inline-block;margin-right:4px;"></span>
+        <span style="font-size:11px;color:var(--text-muted);">${total}/3 dokumen</span>
+      `;
+
+      const pidBtn = hasPid
+        ? `<a class="lbtn lbtn-pid" href="${eq.pid_link}" target="_blank">${iLink()} Buka P&ID</a>`
+        : `<span class="lbtn lbtn-off">${iLink()} P&ID belum tersedia</span>`;
+      const ldBtn = hasLd
+        ? `<a class="lbtn lbtn-ilock" href="${eq.Logic_Diagram}" target="_blank">${iLock()} Buka Logic Diagram</a>`
+        : `<span class="lbtn lbtn-off">${iLock()} Logic Diagram belum tersedia</span>`;
+      const hmiBtn = hasHmi
+        ? `<a class="lbtn lbtn-hmi" href="${eq.hmi_link}" target="_blank">${iHmi()} Buka HMI</a>`
+        : `<span class="lbtn lbtn-off">${iHmi()} HMI belum tersedia</span>`;
+
+      const tagHl  = highlight(eq.tag_number, lastQuery);
+      const descHl = highlight(eq.service_description || '-', lastQuery);
+
+      return `
+        <div class="result-card">
+          <div class="card-top">
+            <div class="tag-badge" onclick="copyTag('${eq.tag_number}')" title="Klik untuk copy">${tagHl}</div>
+            <div class="service-desc">${descHl}</div>
+          </div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">P&ID Number</div>
+              <div class="meta-value">${eq.pid_number || '-'}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Dokumen</div>
+              <div class="meta-value" style="display:flex;align-items:center;">${dotHtml}</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="links">${pidBtn}${ldBtn}${hmiBtn}</div>
+        </div>`;
+    }).join('');
+  }
+
+  // ── ICONS ──
+  function iLink() {
+    return `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6m0 0v6m0-6L7 9"/></svg>`;
+  }
+  function iLock() {
+    return `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1a3 3 0 00-3 3v2H4a1 1 0 00-1 1v7a1 1 0 001 1h8a1 1 0 001-1V7a1 1 0 00-1-1h-1V4a3 3 0 00-3-3z"/></svg>`;
+  }
+  function iHmi() {
+    return `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="14" height="10" rx="1.5"/><path d="M5 12v2M11 12v2M3 14h10"/><circle cx="8" cy="7" r="2"/></svg>`;
+  }
+
+  // ── SEARCH INPUT EVENTS ──
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+    if (e.key === 'Escape') {
+      document.getElementById('historyDropdown').classList.remove('show');
+      searchInput.blur();
+    }
+  });
+  searchInput.addEventListener('focus', () => {
+    renderHistory();
+    if (getHistory().length > 0) {
+      document.getElementById('historyDropdown').classList.add('show');
+    }
+  });
+  searchInput.addEventListener('input', () => {
+    document.getElementById('historyDropdown').classList.remove('show');
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap')) {
+      document.getElementById('historyDropdown').classList.remove('show');
+    }
+  });
+
+  // ── PING PERIODIK ──
+  setInterval(pingServer, 15000);
+
+  loadAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+{
+  "equipment": [
+    {
+      "tag_number": "PIC102",
+      "nama": "Pressure Indicator Controller",
+      "p_id_number": "P&ID-AMM-001",
+      "service_description": "Pressure control pada outlet reactor ammonia",
+      "p_id_link": "-",
+      
+      "LOGIC_DIAGRAM": {},
+      "SAFETY_INTERLOCK": [],
+      "PARAMETER_OPERASI": {},
+      "STATUS": "ACTIVE"
+    },
+
+    {
+      "tag_number": "PSV-101",
+      "nama": "Pressure Safety Valve",
+      "tipe": "Safety Valve",
+      "lokasi": "Outlet Reactor R-101",
+      "p_id_number": "P&ID-AMM-001",
+      "service_description": "Overpressure protection reactor",
+      "p_id_link": "-",
+
+      "LOGIC_DIAGRAM": {},
+      "SAFETY_INTERLOCK": [],
+      "PARAMETER_OPERASI": {},
+      "STATUS": "ACTIVE"
+    },
+
+    {
+      "tag_number": "R-101",
+      "nama": "Reactor Sintesis Ammonia",
+      "tipe": "Reactor",
+      "lokasi": "Section 1 - Plant Ammonia",
+      "p_id_number": "P&ID-AMM-001",
+      "service_description": "Reaksi sintesis ammonia",
+      "p_id_link": "-",
+
+      "LOGIC_DIAGRAM": {},
+      "SAFETY_INTERLOCK": [],
+      "PARAMETER_OPERASI": {},
+      "STATUS": "ACTIVE"
+    },
+
+    {
+      "tag_number": "AE 1001",
+      "nama": "Analyzer Element",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D012",
+      "service_description": "107-D TRANSFER LINE",
+      "p_id_link": "-"
+    },
+    {
+      "tag_number": "AT 1001",
+      "nama": "Analyzer Transmitter",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D012",
+      "service_description": "107-D TRANSFER LINE",
+      "p_id_link": "-"
+    },
+    {
+      "tag_number": "AI 1001",
+      "nama": "Analyzer Indicator",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D012",
+      "service_description": "107-D TRANSFER LINE",
+      "p_id_link": "-"
+    },
+    {
+      "tag_number": "AE 1002",
+      "nama": "Analyzer Element",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D017",
+      "service_description": "104-F SYN. GAS TO 103-J",
+      "p_id_link": "-"
+    },
+    {
+      "tag_number": "AT 1002",
+      "nama": "Analyzer Transmitter",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D017",
+      "service_description": "104-F SYN. GAS TO 103-J",
+      "p_id_link": "-"
+    },
+    {
+      "tag_number": "AI 1002A",
+      "nama": "Analyzer Indicator",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D017",
+      "service_description": "104-F SYN. GAS TO 103-J",
+      "p_id_link": "-"
+    },
+    {
+      "tag_number": "AI 1002B",
+      "nama": "Analyzer Indicator",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D017",
+      "service_description": "104-F SYN. GAS TO 103-J",
+      "p_id_link": "-"
+    },
+    {
+      "tag_number": "AI 1002C",
+      "nama": "Analyzer Indicator",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D017",
+      "service_description": "104-F SYN. GAS TO 103-J",
+      "p_id_link": "-"
+    },
+    {
+      "tag_number": "AI 1002D",
+      "nama": "Analyzer Indicator",
+      "tipe": "Instrument",
+      "lokasi": "-",
+      "p_id_number": "62-D017",
+      "service_description": "104-F SYN. GAS TO 103-J",
+      "p_id_link": "https://drive.google.com/file/d/1wZdVexwgYHMhK6m0RqUNCpwmWzX4Vmav/view?usp=sharing"
+    }
+  ]
+}

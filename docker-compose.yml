@@ -1,0 +1,22 @@
+# ── docker-compose.yml ──────────────────────────────────────────────────────
+# Jalankan bot 24 jam dengan: docker compose up -d
+# Lihat log                 : docker compose logs -f
+# Stop                      : docker compose down
+# Restart setelah edit DB   : docker compose restart
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+  bot:
+    build: .
+    container_name: ammonia-bot
+    restart: always                  # ← auto-restart jika crash / reboot server
+    env_file: .env                   # baca TELEGRAM_TOKEN & GROQ_API_KEY dari .env
+    volumes:
+      - ./data:/app/data             # ← folder data di-mount agar DB bisa diedit dari luar container
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
